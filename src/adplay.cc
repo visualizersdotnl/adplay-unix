@@ -32,8 +32,9 @@
 /*
  * Apple (OS X) and Sun systems declare getopt in unistd.h, other systems
  * (Linux) use getopt.h.
+ * EDIT (visualizersdotnl): Apple doesn't have that in said header.
  */
-#if defined (__APPLE__) || (defined(__SVR4) && defined(__sun))
+#if (defined(__SVR4) || defined(__sun))
 #	include <unistd.h>
 #else
 #	ifdef HAVE_GETOPT_H
