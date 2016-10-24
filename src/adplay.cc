@@ -85,9 +85,9 @@ static struct {
   EmuType		emutype;
   Outputs		output;
 } cfg = {
-  2048, 44100,
+  4096 /* better buffer size for limited hw. */, 44100,
 #ifdef HAVE_ADPLUG_SURROUND
-  2, 16, 0,  // Default to surround if available
+  2, 16, 0,  // Default to surround if available -> no longer, tomfoolery!
 #else
   1, 16, 0,  // Else default to mono (until stereo w/ single OPL is fixed)
 #endif
