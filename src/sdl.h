@@ -20,7 +20,7 @@
 #ifndef H_SDL
 #define H_SDL
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include "output.h"
 
