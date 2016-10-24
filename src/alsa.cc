@@ -30,6 +30,8 @@ ALSAPlayer::ALSAPlayer(Copl *nopl, const char *device, unsigned char bits,
   unsigned int		nfreq = freq;
   unsigned long nbufsize;
 
+  const unsigned int samp_size = getsampsize();
+
   if(!device) device = DEFAULT_DEVICE;
 
   snd_pcm_hw_params_malloc(&hwparams);
@@ -55,7 +57,7 @@ ALSAPlayer::ALSAPlayer(Copl *nopl, const char *device, unsigned char bits,
 
   // Set sample format
   if (snd_pcm_hw_params_set_format(pcm_handle, hwparams, bits == 16 ?
-				   SND_PCM_FORMAT_S16 : SND_PCM_FORMAT_U8) < 0) {
+				   SND_PCM_FORMAT_S16_LE : SND_PCM_FORMAT_S8) < 0) {
     message(MSG_ERROR, "error setting format");
     exit(EXIT_FAILURE);
   }
@@ -82,10 +84,14 @@ ALSAPlayer::ALSAPlayer(Copl *nopl, const char *device, unsigned char bits,
     exit(EXIT_FAILURE);
   }
 
+  // some additional information
+  message(MSG_NOTE, "ALSA: sample/frame size %ld (bytes)", samp_size);
+  message(MSG_NOTE, "ALSA: buffer size %ld (frames)", bufsize);
+
   // Set the preferred buffer size (in samples)
-  if(snd_pcm_hw_params_set_buffer_size(pcm_handle, hwparams, bufsize / getsampsize()) < 0) {
+  if(snd_pcm_hw_params_set_buffer_size(pcm_handle, hwparams, bufsize) < 0) {
     if (snd_pcm_hw_params_get_buffer_size(hwparams, &nbufsize) < 0) {
-      message(MSG_ERROR, "error setting and getting buffer size");
+      message(MSG_ERROR, "error setting and getting buffer size (returned %ld)", nbufsize);
       exit(EXIT_FAILURE);
   	}
     setbufsize(nbufsize);
@@ -98,6 +104,12 @@ ALSAPlayer::ALSAPlayer(Copl *nopl, const char *device, unsigned char bits,
     exit(EXIT_FAILURE);
   }
 
+  // dev. info (useful!)
+  message(MSG_NOTE, "ALSA HW PCM info:");
+  snd_output_t *out;
+  snd_output_stdio_attach(&out, stderr, 0);
+  snd_pcm_dump_hw_setup(pcm_handle, out);
+
   snd_pcm_hw_params_free(hwparams);
 }
 
@@ -106,10 +118,40 @@ ALSAPlayer::~ALSAPlayer()
   // stop playback immediately
   snd_pcm_drop(pcm_handle);
   snd_pcm_close(pcm_handle);
+
+  message(MSG_NOTE, "ALSA stream dropped & closed");
 }
+
+static bool test = false;
 
 void ALSAPlayer::output(const void *buf, unsigned long size)
 {
-  if(snd_pcm_writei(pcm_handle, buf, size / getsampsize()) < 0)
+  const unsigned int samp_size = getsampsize(); // number of bytes per frame
+  const unsigned long buf_size = getbufsize();  // buffer size in frames
+
+  const long frames_to_write = size / samp_size;
+  const unsigned long buf_size_frames = buf_size;
+
+  // FIXME: debug output
+  if (false == test)
+  {
+    message(MSG_WARN, "ALSA output param size %ld (bytes), frames_to_write %ld, buf_size_frames %ld, samp_size %ld", size, frames_to_write, buf_size_frames, samp_size);
+    test = true;
+  }
+
+  // FIXME: can go?
+  if (frames_to_write > buf_size_frames)
+    message(MSG_WARN, "ALSA trying to push more frames (%ld) than buffer size (%ld)", frames_to_write, buf_size_frames);
+
+  snd_pcm_sframes_t written = snd_pcm_writei(pcm_handle, buf, frames_to_write);
+  if (written < 0)
     snd_pcm_prepare(pcm_handle);
+
+  if (written != frames_to_write)
+  {
+    if (written >= 0)
+      message(MSG_WARN, "ALSA buffer underrun? to write %ld frames (samp_size %ld) written %ld", frames_to_write, samp_size, written);
+    else
+      message(MSG_WARN, "ALSA write error: %ld", written);
+  }
 }

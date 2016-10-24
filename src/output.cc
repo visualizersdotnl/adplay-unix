@@ -53,6 +53,7 @@ EmuPlayer::~EmuPlayer()
 // Some output plugins (ALSA) need to change the buffer size mid-init
 void EmuPlayer::setbufsize(unsigned long nbufsize)
 {
+  message(MSG_NOTE, "output plugin changes buffer size: %ld", nbufsize);
   delete [] audiobuf;
   buf_size = nbufsize;
   audiobuf = new char [buf_size * getsampsize()];

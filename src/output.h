@@ -58,6 +58,7 @@ protected:
   // This time, size is measured in bytes, not samples!
 
   unsigned char getsampsize() { return (channels * (bits / 8)); }
+  unsigned long getbufsize() { return buf_size; }
 };
 
 #endif

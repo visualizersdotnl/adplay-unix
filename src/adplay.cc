@@ -87,7 +87,7 @@ static struct {
 } cfg = {
   2048, 44100,
 #ifdef HAVE_ADPLUG_SURROUND
-  2, 16, 1,  // Default to surround if available
+  2, 16, 0,  // Default to surround if available
 #else
   1, 16, 0,  // Else default to mono (until stereo w/ single OPL is fixed)
 #endif
@@ -514,6 +514,9 @@ int main(int argc, char **argv)
   if(userdb) { mydb.load(userdb); free(userdb); }
   mydb.load(ADPLUGDB_PATH);
   CAdPlug::set_database(&mydb);
+
+  // boast!
+  message(MSG_NOTE, "Adplay-Unix, patched by the baddest man on the planet for Raspbian/ALSA");
 
   // play all files from commandline
   for(i=optind;i<argc;i++)
