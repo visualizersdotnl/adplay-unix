@@ -122,24 +122,15 @@ ALSAPlayer::~ALSAPlayer()
   message(MSG_NOTE, "ALSA stream dropped & closed");
 }
 
-static bool test = false;
-
 void ALSAPlayer::output(const void *buf, unsigned long size)
 {
   const unsigned int samp_size = getsampsize(); // number of bytes per frame
   const unsigned long buf_size = getbufsize();  // buffer size in frames
 
   const long frames_to_write = size / samp_size;
-  const unsigned long buf_size_frames = buf_size;
+  const unsigned long buf_size_frames = buf_size; // FIXME: this is confusing (either refer to frames or bytes)
 
-  // FIXME: debug output
-  if (false == test)
-  {
-    message(MSG_WARN, "ALSA output param size %ld (bytes), frames_to_write %ld, buf_size_frames %ld, samp_size %ld", size, frames_to_write, buf_size_frames, samp_size);
-    test = true;
-  }
-
-  // FIXME: can go?
+  // if this happens, we're screwed
   if (frames_to_write > buf_size_frames)
     message(MSG_WARN, "ALSA trying to push more frames (%ld) than buffer size (%ld)", frames_to_write, buf_size_frames);
 
