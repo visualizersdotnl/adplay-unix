@@ -20,7 +20,11 @@
 #ifndef H_SDL
 #define H_SDL
 
-#include <SDL/SDL.h>
+#ifdef __APPLE__
+	#include <SDL/SDL.h>
+#else
+	#include <SDL.h>
+#endif
 
 #include "output.h"
 
