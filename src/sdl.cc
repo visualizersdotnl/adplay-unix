@@ -36,7 +36,7 @@ SDLPlayer::SDLPlayer(Copl *nopl, unsigned char bits, int channels, int freq,
    spec.freq = freq;
    if(bits == 16) spec.format = AUDIO_S16SYS; else spec.format = AUDIO_U8;
    spec.channels = channels;
-   spec.samples = bufsize;
+   spec.samples = bufsize;  
    spec.callback = SDLPlayer::callback;
    spec.userdata = this;
 

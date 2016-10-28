@@ -78,7 +78,7 @@ ALSAPlayer::ALSAPlayer(Copl *nopl, const char *device, unsigned char bits,
     exit(EXIT_FAILURE);
   }
 
-  // Set number of periods
+  // Set number of periods (FIXME?)
   if(snd_pcm_hw_params_set_periods(pcm_handle, hwparams, 4, 0) < 0) {
     message(MSG_ERROR, "error setting periods");
     exit(EXIT_FAILURE);
@@ -143,6 +143,6 @@ void ALSAPlayer::output(const void *buf, unsigned long size)
     if (written >= 0)
       message(MSG_WARN, "ALSA buffer underrun? to write %ld frames (samp_size %ld) written %ld", frames_to_write, samp_size, written);
     else
-      message(MSG_WARN, "ALSA write error: %ld", written);
+      message(MSG_WARN, "ALSA write error: %s", snd_strerror(written));
   }
 }
