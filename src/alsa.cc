@@ -78,7 +78,7 @@ ALSAPlayer::ALSAPlayer(Copl *nopl, const char *device, unsigned char bits,
     exit(EXIT_FAILURE);
   }
 
-  // Set number of periods (FIXME?)
+  // Set number of periods
   if(snd_pcm_hw_params_set_periods(pcm_handle, hwparams, 4, 0) < 0) {
     message(MSG_ERROR, "error setting periods");
     exit(EXIT_FAILURE);
