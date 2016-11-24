@@ -87,7 +87,7 @@ static struct {
 } cfg = {
   4096 /* better buffer size for limited hw. */, 44100,
 #ifdef HAVE_ADPLUG_SURROUND
-  2, 16, 1,  // Default to surround if available -> no longer, tomfoolery!
+  2, 16, 1,  // Default to surround if available
 #else
   1, 16, 0,  // Else default to mono (until stereo w/ single OPL is fixed)
 #endif
